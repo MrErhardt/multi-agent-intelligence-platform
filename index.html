@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Multi-Agent Intelligence Platform — Erhardt Software Solutions</title>
+<meta name="description" content="Type a goal. Four agents — Researcher, Analyst, Planner, Reviewer — work it in sequence and deliver a Final Brief."/>
+<style>
+:root{--bg:#0b1020;--card:#121832;--card2:#0f1530;--text:#eef2ff;--muted:#9aa7d6;--line:#26305e;--accent:#6d8bff;--accent2:#22d3ee;--green:#34d399;--amber:#fbbf24;--red:#f87171}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(900px 500px at 20% 0%,#1a2350 0%,transparent 60%),radial-gradient(800px 500px at 90% 10%,#0e3a4d 0%,transparent 55%),var(--bg);color:var(--text);min-height:100vh}
+a{color:#9db4ff}.wrap{max-width:1080px;margin:0 auto;padding:28px 18px 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.2px}.logo span{color:var(--accent2)}
+.badge{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;color:var(--muted);background:rgba(255,255,255,.03)}
+h1{font-size:44px;line-height:1.02;margin:22px 0 10px;max-width:720px}
+h1 em{font-style:normal;color:var(--accent2)}
+.sub{color:var(--muted);font-size:17px;line-height:1.6;max-width:720px;margin:0 0 18px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:18px}
+.composer{display:flex;gap:10px;flex-wrap:wrap}
+input[type=text]{flex:1;min-width:260px;background:#0a0f26;border:1px solid var(--line);color:var(--text);border-radius:12px;padding:14px 14px;font-size:16px;outline:none}
+input[type=text]:focus{border-color:var(--accent)}
+button{cursor:pointer;border:0;border-radius:12px;padding:13px 18px;font-weight:700;font-size:15px}
+.btn-primary{background:var(--accent);color:white}.btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{background:#0a0f26;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:8px 12px;font-size:13px;cursor:pointer}
+.chip:hover{color:var(--text);border-color:var(--accent)}
+.agents{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+@media(max-width:760px){.agents{grid-template-columns:repeat(2,1fr)}h1{font-size:34px}}
+.agent{border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(255,255,255,.03)}
+.agent b{display:block;font-size:14px}.agent span{font-size:12px;color:var(--muted);line-height:1.4;display:block;margin-top:4px}
+.agent .dot{width:9px;height:9px;border-radius:50%;background:#334155;display:inline-block;margin-right:6px;vertical-align:middle}
+.agent.active{border-color:var(--accent2)}.agent.active .dot{background:var(--accent2);box-shadow:0 0 0 4px rgba(34,211,238,.18)}
+.agent.done .dot{background:var(--green)}
+#status{color:var(--muted);font-size:14px;min-height:20px;margin:6px 0}
+.trail{display:grid;gap:12px}
+.step{border:1px solid var(--line);border-radius:16px;padding:16px;background:var(--card)}
+.step h3{margin:0 0 6px;font-size:16px}.step h3 small{color:var(--muted);font-weight:500}
+.step p{color:#dbe4ff;line-height:1.6;margin:8px 0}
+.step ul{margin:8px 0;padding-left:20px;color:#dbe4ff;line-height:1.65}
+.pill{display:inline-block;font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
+.pill.green{color:#a7f3d0;border-color:#14532d}.pill.amber{color:#fde68a;border-color:#78350f}
+.brief{background:#0a0f26;border:1px solid var(--accent);border-radius:16px;padding:18px}
+.brief h2{margin:0 0 8px}.muted{color:var(--muted);line-height:1.6}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.history{margin-top:22px}.hist-item{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;background:rgba(255,255,255,.02);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.hist-item b{font-size:14px}.small{font-size:13px;color:var(--muted)}
+footer{margin-top:28px;color:var(--muted);font-size:13px;line-height:1.6}
+.toggle{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.switch{width:44px;height:24px;border-radius:999px;background:#334155;position:relative;cursor:pointer;border:1px solid var(--line)}
+.switch.on{background:var(--accent)}.switch:after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:white;transition:.15s}
+.switch.on:after{left:22px}
+.pro{border:1px dashed #4c5a9e;border-radius:16px;padding:16px;margin-top:16px}
+.pro b{color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="logo">ERHARDT <span>• Software Solutions</span></div>
+<div class="badge">Multi-Agent Intelligence Platform • v1 • Render-ready</div>
+</header>
+
+<h1>One goal in.<br/><em>Four agents</em> work it.</h1>
+<p class="sub">Type any goal and watch Researcher, Analyst, Planner and Reviewer work it in sequence — with sources, risks, a timed plan, and a Final Brief you can save, copy, or download.</p>
+
+<div class="card">
+<div class="composer">
+<input id="goal" type="text" placeholder='Try: Research NVDA and give me a trading plan' maxlength="1000"/>
+<button id="runBtn" class="btn-primary" onclick="runAgents()">Run agents →</button>
+<button class="btn-ghost" onclick="clearAll()">Clear</button>
+</div>
+<div class="chips" id="chips"></div>
+<div id="status"></div>
+<div class="agents" id="agents"></div>
+</div>
+
+<div id="trail" class="trail" style="margin-top:14px"></div>
+
+<div class="card history">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+<b>History</b>
+<div>
+<button class="btn-ghost" style="padding:8px 12px" onclick="setFilter('all')">All</button>
+<button class="btn-ghost" style="padding:8px 12px" onclick="setFilter('saved')">★ Saved</button>
+</div>
+</div>
+<div id="history"></div>
+<div class="small" style="margin-top:8px">History is saved in this browser only for v1. Sign-in / cloud sync comes with Pro.</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+<div class="toggle">
+<div id="hunterToggle" class="switch" onclick="toggleHunter()" role="button" aria-label="Market Hunter plug-in"></div>
+<div><b>Market Hunter plug-in</b><div class="small">Connect this platform to AI Market Hunter later — trading signals flow into the Analyst.</div></div>
+</div>
+<div class="pro">
+<b>Erhardt Pro — $29/mo</b> <span class="pill">Waitlist</span>
+<p class="muted" style="margin:8px 0">Unlimited runs, live quotes, cloud history, and priority agents. Join the waitlist — no charge today. Stripe → Stride billing is not connected yet.</p>
+<div class="row">
+<input id="proEmail" type="text" placeholder="you@example.com" style="max-width:320px"/>
+<button class="btn-primary" onclick="joinPro()">Join Pro waitlist</button>
+<span id="proMsg" class="small"></span>
+</div>
+</div>
+</div>
+
+<footer>
+Created by Dean Mathas Erhardt — Erhardt Software Solutions.<br/>
+<b style="color:#eef2ff">Important:</b> This is research and planning help, not financial advice. Re-check any price or fact live before acting — do not treat a quoted figure as definitive. For trading, paper-trade first and size positions to your risk tolerance.<br/>
+Built for Render: <code>npm install</code> → <code>node server.js</code> • Health: <code>/api/health</code> • Deploy: <code>render.yaml</code> included.
+</footer>
+</div>
+
+<script>
+const AGENTS=[
+ {name:'Researcher',role:'Gathers information'},
+ {name:'Analyst',role:'Signals, risks & verdict'},
+ {name:'Planner',role:'Builds timed steps'},
+ {name:'Reviewer',role:'Final Brief & cautions'},
+];
+const EXAMPLES=[
+ 'Research NVDA and give me a trading plan',
+ 'Analyze BTC and tell me the risks',
+ 'Plan a launch for my new SaaS product',
+ 'Research AAPL vs MSFT — which is stronger right now?',
+ 'Give me a 7-day plan to learn options trading safely',
+];
+let filter='all';
+let hunterOn=false;
+let current=null;
+
+function renderAgents(activeIdx=-1,doneUpTo=-1){
+ document.getElementById('agents').innerHTML=AGENTS.map((a,i)=>{
+  const cls=i===activeIdx?'active':(i<=doneUpTo?'done':'');
+  return `<div class="agent ${cls}"><b><span class="dot"></span>${a.name}</b><span>${a.role}</span></div>`;
+ }).join('');
+}
+function renderChips(){
+ document.getElementById('chips').innerHTML=EXAMPLES.map(e=>`<button class="chip" onclick="useExample(${JSON.stringify(e).replace(/"/g,'&quot;')})">${e}</button>`).join('');
+}
+function useExample(t){document.getElementById('goal').value=t;runAgents();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function loadHistory(){try{return JSON.parse(localStorage.getItem('maip_history')||'[]')}catch(e){return[]}}
+function saveHistory(item){const h=loadHistory();h.unshift(item);localStorage.setItem('maip_history',JSON.stringify(h.slice(0,50)));}
+function renderHistory(){
+ const h=loadHistory().filter(x=>filter==='all'||x.saved);
+ const el=document.getElementById('history');
+ if(!h.length){el.innerHTML='<p class="muted">No runs yet. Run your first goal above.</p>';return;}
+ el.innerHTML=h.map((x,i)=>`<div class="hist-item"><div><b>${esc(x.goal)}</b><div class="small">${esc(x.category||'')} • ${esc(x.tickers&&x.tickers.length?x.tickers.join(', '):'No ticker')} • ${new Date(x.createdAt).toLocaleString()}</div></div><div style="display:flex;gap:8px"><button class="btn-ghost" style="padding:8px 10px" onclick="toggleSave(${i})">${x.saved?'★ Saved':'☆ Save'}</button><button class="btn-ghost" style="padding:8px 10px" onclick="viewHistory(${i})">View</button></div></div>`).join('');
+}
+function toggleSave(idx){
+ const all=loadHistory(); const visible=all.filter(x=>filter==='all'||x.saved); const item=visible[idx]; if(!item) return;
+ const realIdx=all.findIndex(x=>x.id===item.id); if(realIdx>=0){all[realIdx].saved=!all[realIdx].saved;localStorage.setItem('maip_history',JSON.stringify(all));renderHistory();}
+}
+function viewHistory(idx){
+ const all=loadHistory(); const visible=all.filter(x=>filter==='all'||x.saved); const item=visible[idx]; if(!item) return;
+ document.getElementById('goal').value=item.goal; renderResult(item);
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function setFilter(f){filter=f;renderHistory();}
+function toggleHunter(){hunterOn=!hunterOn;document.getElementById('hunterToggle').classList.toggle('on',hunterOn);}
+function joinPro(){
+ const e=document.getElementById('proEmail').value.trim();
+ const m=document.getElementById('proMsg');
+ if(!e||!e.includes('@')){m.textContent='Enter a valid email to join.';return;}
+ try{const l=JSON.parse(localStorage.getItem('maip_pro')||'[]');l.push({email:e,at:new Date().toISOString()});localStorage.setItem('maip_pro',JSON.stringify(l));}catch(_){}
+ m.textContent="You're on the Pro waitlist ✓";
+}
+function clearAll(){document.getElementById('goal').value='';document.getElementById('trail').innerHTML='';document.getElementById('status').textContent='';renderAgents();current=null;}
+
+function renderResult(data){
+ current=data;
+ const [r,a,p,rev]=data.trail;
+ const brief=rev.brief;
+ document.getElementById('trail').innerHTML=`
+ <div class="step"><h3>🔎 Researcher <small>— ${esc(r.role)}</small></h3><p>${esc(r.summary)}</p><ul>${r.findings.map(f=>`<li>${esc(f)}</li>`).join('')}</ul><div>${r.sources.map(s=>`<a class="pill" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)} ↗</a>`).join('')}</div></div>
+ <div class="step"><h3>📊 Analyst <small>— ${esc(a.role)}</small></h3><p>${esc(a.summary)}</p><div>${a.signals.map(s=>`<span class="pill ${s.label==='Risk'?'amber':'green'}">${esc(s.label)}: ${esc(s.value)}</span>`).join('')}</div><ul>${a.signals.map(s=>`<li><b>${esc(s.label)}:</b> ${esc(s.note)}</li>`).join('')}</ul><p><b>Verdict:</b> ${esc(a.verdict)}</p><p><b>Risks:</b></p><ul>${a.risks.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+ <div class="step"><h3>🗓️ Planner <small>— ${esc(p.role)}</small></h3><p>${esc(p.summary)}</p><ul>${p.steps.map(s=>`<li><b>${esc(s.when)}:</b> ${esc(s.action)}</li>`).join('')}</ul></div>
+ <div class="brief"><h2>✅ Final Brief — ${esc(brief.headline)}</h2>
+ <p class="muted">Category: ${esc(data.category)} • Tickers: ${esc(data.tickers&&data.tickers.length?data.tickers.join(', '):'—')} • Confidence: ${esc(rev.confidence)}</p>
+ <p><b>What we know</b></p><ul>${brief.whatWeKnow.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+ <p><b>What to watch</b></p><ul>${brief.whatToWatch.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+ <p><b>Plan</b></p><ul>${brief.plan.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+ <p><b>Cautions</b></p><ul>${brief.cautions.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+ <p><b>Next step:</b> ${esc(rev.nextStep)}</p>
+ <div class="row">
+ <button class="btn-primary" onclick="copyBrief()">Copy brief</button>
+ <button class="btn-ghost" onclick="downloadBrief()">Download .md</button>
+ <button class="btn-ghost" onclick="saveCurrent()">★ Save to history</button>
+ <span id="briefMsg" class="small"></span>
+ </div></div>`;
+}
+function copyBrief(){
+ if(!current) return; const b=current.trail[3].brief;
+ const txt=`# ${b.headline}\n\nCategory: ${current.category}\nTickers: ${(current.tickers||[]).join(', ')||'—'}\n\n## What we know\n${b.whatWeKnow.map(x=>`- ${x}`).join('\n')}\n\n## What to watch\n${b.whatToWatch.map(x=>`- ${x}`).join('\n')}\n\n## Plan\n${b.plan.map(x=>`- ${x}`).join('\n')}\n\n## Cautions\n${b.cautions.map(x=>`- ${x}`).join('\n')}\n`;
+ navigator.clipboard.writeText(txt).then(()=>{document.getElementById('briefMsg').textContent='Copied ✓';});
+}
+function downloadBrief(){
+ if(!current) return; const b=current.trail[3].brief;
+ const txt=`# ${b.headline}\n\nCategory: ${current.category}\nTickers: ${(current.tickers||[]).join(', ')||'—'}\n\n## What we know\n${b.whatWeKnow.map(x=>`- ${x}`).join('\n')}\n\n## Plan\n${b.plan.map(x=>`- ${x}`).join('\n')}\n\n## Cautions\n${b.cautions.map(x=>`- ${x}`).join('\n')}\n`;
+ const blob=new Blob([txt],{type:'text/markdown'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='final-brief.md'; a.click();
+}
+function saveCurrent(){ if(!current) return; saveHistory({...current,saved:true}); renderHistory(); const m=document.getElementById('briefMsg'); if(m) m.textContent='Saved ★'; }
+
+async function runAgents(){
+ const goal=document.getElementById('goal').value.trim();
+ if(goal.length<3){document.getElementById('status').textContent='Please enter a goal.';return;}
+ const btn=document.getElementById('runBtn'); btn.disabled=true; btn.textContent='Running…';
+ document.getElementById('trail').innerHTML='';
+ try{
+  for(let i=0;i<4;i++){renderAgents(i,i-1);document.getElementById('status').textContent=`${AGENTS[i].name} is working…`;await new Promise(r=>setTimeout(r,550));}
+  const res=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal})});
+  const data=await res.json();
+  if(!res.ok) throw new Error(data.error||'Run failed');
+  renderAgents(-1,3); document.getElementById('status').textContent='Done — Final Brief ready below.';
+  renderResult(data); saveHistory({...data,saved:false}); renderHistory();
+ }catch(e){
+  document.getElementById('status').textContent='Error: '+(e.message||'Run failed. Please try again.');
+  renderAgents();
+ }finally{btn.disabled=false;btn.textContent='Run agents →';}
+}
+document.getElementById('goal').addEventListener('keydown',e=>{if(e.key==='Enter') runAgents();});
+renderAgents(); renderChips(); renderHistory();
+</script>
+</body>
+</html>

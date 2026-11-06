@@ -1,0 +1,1 @@
+{"dependencies":{"express":"^4.19.2"},"description":"Erhardt Software Solutions - Multi-Agent Intelligence Platform v1. Researcher, Analyst, Planner and Reviewer agents work a goal in sequence.","engines":{"node":">=20"},"license":"MIT","main":"server.js","name":"multi-agent-intelligence-platform","scripts":{"dev":"node server.js","start":"node server.js"},"version":"1.0.0"}
